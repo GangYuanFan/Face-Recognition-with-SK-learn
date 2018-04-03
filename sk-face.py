@@ -166,6 +166,7 @@ def test():
     with open('clf/clf_angle.pickle', 'rb') as f2:
         model_angle = pickle.load(f2)
         cap = cv2.VideoCapture(0)
+        prevent_vibrate = 0
         while 1:
             ret, img = cap.read()
             if ret:
@@ -200,14 +201,27 @@ def test():
                     maxval1, index1 = Maximum(pred1[0])
                     pred2 = model_angle.predict(angle)
                     maxval2, index2 = Maximum(pred2[0])
-                    if index1 == 0 or index2 == 0:
+                    if index1 == 0 and index2 == 0:
                         cv2.rectangle(img, (x, y - int(h * 0.1)), (x + int(w * 0.35), y), (0, 255, 0), -1)
                         cv2.putText(img, classifier[0], (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255),
                                     2)
-                    else:
+                        prevent_vibrate = 1
+                    elif index1 == 1 and index2 == 1:
                         cv2.rectangle(img, (x, y - int(h * 0.1)), (x + int(w * 0.6), y), (0, 255, 0), -1)
                         cv2.putText(img, classifier[1], (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255),
                                     2)
+                        prevent_vibrate = 0
+                    else:
+                        if prevent_vibrate == 0:
+                            cv2.rectangle(img, (x, y - int(h * 0.1)), (x + int(w * 0.6), y), (0, 255, 0), -1)
+                            cv2.putText(img, classifier[1], (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                                        (255, 255, 255),
+                                        2)
+                        else:
+                            cv2.rectangle(img, (x, y - int(h * 0.1)), (x + int(w * 0.35), y), (0, 255, 0), -1)
+                            cv2.putText(img, classifier[0], (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                                        (255, 255, 255),
+                                        2)
                     for (_x, _y) in shape:
                         cv2.circle(img, (_x, _y), 1, (0, 0, 255), -1)
                 except:
